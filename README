@@ -1,3 +1,8 @@
+THIS PROJECT IS COPIED FROM https://people.eecs.berkeley.edu/~aydin/csb/html/index.html
+TO BE USED WITH YGGDRASIL (TO CREATE A WRAPPER OF CSB IN JULIA)
+
+https://github.com/JuliaPackaging/Yggdrasil
+
 ========================================================================
     APPLICATION : CSB Overview
 ========================================================================
