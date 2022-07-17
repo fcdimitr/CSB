@@ -12,6 +12,7 @@
 #define NOMINMAX
 
 #define RHSDIM 1
+#define ALIGN 32
 
 #include <iostream>
 #include <cstdint>
@@ -37,7 +38,70 @@
 #include "bmcsb.h"
 #include "spvec.h"
 #include "Semirings.h"
+#include "aligned.h"
 
+
+template <typename NT, int DIM>
+void fillzero (vector< array<NT,DIM> > & vecofarr)
+{
+  for(auto itr = vecofarr.begin(); itr != vecofarr.end(); ++itr)
+  {
+    itr->fill(static_cast<NT> (0));
+  }
+}
+
+template <typename NT, int DIM>
+void fillrandom (vector< array<NT,DIM>> & vecofarr)
+{
+	for(auto itr = vecofarr.begin(); itr != vecofarr.end(); ++itr)
+	{
+	#if (__GNUC__ == 4 && (__GNUC_MINOR__ < 7) )
+		RandGen G;
+		for(auto refarr = itr->begin(); refarr != itr->end(); ++refarr)
+		{
+			*refarr = G.RandReal();
+		}
+	#else
+		std::uniform_real_distribution<NT> distribution(0.0f, 1.0f); //Values between 0 and 1
+		std::mt19937 engine; // Mersenne twister MT19937
+		auto generator = std::bind(distribution, engine);
+		std::generate_n(itr->begin(), DIM, generator);
+	#endif
+	}
+}
+
+
+template <typename NT, int DIM>
+void copy_to_vector (vector< array<NT,DIM> > & vecofarr, NT * vv, int n)
+{
+  int i = 0 ;
+  for(auto itr = vecofarr.begin(); itr != vecofarr.end(); ++itr)
+  {
+    int d = 0;
+    for(auto refarr = itr->begin(); refarr != itr->end(); ++refarr)
+    {
+      *refarr = vv[i + n * d];
+      d++;
+    }
+    i++;
+  }
+}
+
+template <typename NT, int DIM>
+void copy_from_vector (vector< array<NT,DIM> > & vecofarr, NT * vv, int n)
+{
+  int i = 0 ;
+  for(auto itr = vecofarr.begin(); itr != vecofarr.end(); ++itr)
+  {
+    int d = 0;
+    for(auto refarr = itr->begin(); refarr != itr->end(); ++refarr)
+    {
+      vv[i + n * d] = *refarr;
+      d++;
+    }
+    i++;
+  }
+}
 
 /*
  * Although this is a template, the result is always a CSB object.
@@ -71,6 +135,30 @@ void deallocate( BiCsb<NT,IT> * bicsb ){
   // generate CSC object (CSB definitions)
   delete bicsb;
 }
+
+
+template <class NT, class IT, int DIM>
+void gespmm( BiCsb<NT,IT> * bicsb,
+             NT * const x, NT * const y,
+             int nlhs, int nrhs ){
+
+  // prepare template type for CSB routine
+  typedef PTSRArray<double, double, DIM> PTARR;
+  typedef array<NT, DIM> PACKED;
+
+  vector< PACKED > y_vec(nlhs);
+	vector< PACKED > x_vec(nrhs);
+
+  fillzero<NT, DIM>(y_vec);
+  copy_to_vector<NT, DIM>(x_vec, x, nrhs);
+
+  bicsb_gespmv<PTARR>( *bicsb, &(x_vec[0]), &(y_vec[0]));
+
+  copy_from_vector<NT, DIM>(y_vec, y, nlhs);
+
+
+}
+
 
 // ***** EXPLICIT INSTATIATION
 extern "C" {
@@ -114,7 +202,7 @@ extern "C" {
 
   }
 
-  void gespmv_double_int64( BiCsb<double,int64_t> * bicsb, double * const x, double * const y ){
+  void gespmv_double_int64( BiCsb<double,__int64> * bicsb, double * const x, double * const y ){
 
     // prepare template type for CSB routine
     typedef PTSR<double,double> PTDD;
@@ -123,8 +211,53 @@ extern "C" {
 
   }
 
+#define DECLARE_GESPMM(DIMS)                                            \
+  void gespmm_double_int64_ ##DIMS## _rhs ( BiCsb<double,__int64> * bicsb, \
+                                     double * const x, double * const y, \
+                                     int nlhs, int nrhs ){              \
+                                                                        \
+    gespmm<double, __int64, DIMS>( bicsb,                               \
+                                   x, y,                                \
+                                   nlhs, nrhs );                        \
+                                                                        \
+  }
 
-  void deallocate_double_int64( BiCsb<double,int64_t> * bicsb ){
+  DECLARE_GESPMM(1)
+  DECLARE_GESPMM(2)
+  DECLARE_GESPMM(3)
+  DECLARE_GESPMM(4)
+  DECLARE_GESPMM(5)
+  DECLARE_GESPMM(6)
+  DECLARE_GESPMM(7)
+  DECLARE_GESPMM(8)
+  DECLARE_GESPMM(9)
+  DECLARE_GESPMM(10)
+  DECLARE_GESPMM(11)
+  DECLARE_GESPMM(12)
+  DECLARE_GESPMM(13)
+  DECLARE_GESPMM(14)
+  DECLARE_GESPMM(15)
+  DECLARE_GESPMM(16)
+  DECLARE_GESPMM(17)
+  DECLARE_GESPMM(18)
+  DECLARE_GESPMM(19)
+  DECLARE_GESPMM(20)
+  DECLARE_GESPMM(21)
+  DECLARE_GESPMM(22)
+  DECLARE_GESPMM(23)
+  DECLARE_GESPMM(24)
+  DECLARE_GESPMM(25)
+  DECLARE_GESPMM(26)
+  DECLARE_GESPMM(27)
+  DECLARE_GESPMM(28)
+  DECLARE_GESPMM(29)
+  DECLARE_GESPMM(30)
+  DECLARE_GESPMM(31)
+  DECLARE_GESPMM(32)
+
+
+
+  void deallocate_double_int64( BiCsb<double,__int64> * bicsb ){
     deallocate( bicsb );
   }
 

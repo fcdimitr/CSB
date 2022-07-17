@@ -77,8 +77,8 @@ struct PTSRArray
 	{
 		const T2 * __restrict barr =  b.data();
 		T_promote * __restrict carr = c.data();
-		__assume_aligned(barr, ALIGN);
-		__assume_aligned(carr, ALIGN);
+		// __assume_aligned(barr, ALIGN);
+		// __assume_aligned(carr, ALIGN);
 
 		#pragma simd
 		for(int i=0; i<D; ++i)
@@ -94,8 +94,8 @@ struct PTSRArray
 	{
 		const T2 * __restrict barr =  b.data();
 		T_promote * __restrict carr = c.data();
-		__assume_aligned(barr, ALIGN);
-		__assume_aligned(carr, ALIGN);
+		// __assume_aligned(barr, ALIGN);
+		// __assume_aligned(carr, ALIGN);
 
 		#pragma simd
 		for(int i=0; i<D; ++i)
