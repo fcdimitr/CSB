@@ -160,6 +160,29 @@ void gespmm( BiCsb<NT,IT> * bicsb,
 }
 
 
+template <class NT, class IT, int DIM>
+void gespmmt( BiCsb<NT,IT> * bicsb,
+              NT * const x, NT * const y,
+              int nlhs, int nrhs ){
+
+  // prepare template type for CSB routine
+  typedef PTSRArray<double, double, DIM> PTARR;
+  typedef array<NT, DIM> PACKED;
+
+  vector< PACKED > y_vec(nlhs);
+	vector< PACKED > x_vec(nrhs);
+
+  fillzero<NT, DIM>(y_vec);
+  copy_to_vector<NT, DIM>(x_vec, x, nrhs);
+
+  bicsb_gespmvt<PTARR>( *bicsb, &(x_vec[0]), &(y_vec[0]));
+
+  copy_from_vector<NT, DIM>(y_vec, y, nlhs);
+
+
+}
+
+
 // ***** EXPLICIT INSTATIATION
 extern "C" {
 
@@ -211,6 +234,24 @@ extern "C" {
 
   }
 
+  void gespmvt_double_int64( BiCsb<double,__int64> * bicsb, double * const x, double * const y ){
+
+    // prepare template type for CSB routine
+    typedef PTSR<double,double> PTDD;
+
+    bicsb_gespmvt<PTDD>( *bicsb, x, y );
+
+  }
+
+  void gespmvt_double_uint32( BiCsb<double,uint32_t> * bicsb, double * const x, double * const y ){
+
+    // prepare template type for CSB routine
+    typedef PTSR<double,double> PTDD;
+
+    bicsb_gespmvt<PTDD>( *bicsb, x, y );
+
+  }
+
 #define DECLARE_GESPMM(DIMS)                                            \
   void gespmm_double_int64_ ##DIMS## _rhs ( BiCsb<double,__int64> * bicsb, \
                                      double * const x, double * const y, \
@@ -219,6 +260,35 @@ extern "C" {
     gespmm<double, __int64, DIMS>( bicsb,                               \
                                    x, y,                                \
                                    nlhs, nrhs );                        \
+                                                                        \
+  }                                                                     \
+                                                                        \
+  void gespmmt_double_int64_ ##DIMS## _rhs ( BiCsb<double,__int64> * bicsb, \
+                                     double * const x, double * const y, \
+                                     int nlhs, int nrhs ){              \
+                                                                        \
+    gespmmt<double, __int64, DIMS>( bicsb,                               \
+                                    x, y,                               \
+                                    nlhs, nrhs );                       \
+                                                                        \
+  }                                                                     \
+  void gespmm_double_uint32_ ##DIMS## _rhs ( BiCsb<double,uint32_t> * bicsb, \
+                                     double * const x, double * const y, \
+                                     int nlhs, int nrhs ){              \
+                                                                        \
+    gespmm<double, uint32_t, DIMS>( bicsb,                               \
+                                   x, y,                                \
+                                   nlhs, nrhs );                        \
+                                                                        \
+  }                                                                     \
+                                                                        \
+  void gespmmt_double_uint32_ ##DIMS## _rhs ( BiCsb<double,uint32_t> * bicsb, \
+                                     double * const x, double * const y, \
+                                     int nlhs, int nrhs ){              \
+                                                                        \
+    gespmmt<double, uint32_t, DIMS>( bicsb,                               \
+                                    x, y,                               \
+                                    nlhs, nrhs );                       \
                                                                         \
   }
 
