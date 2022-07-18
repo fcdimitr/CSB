@@ -4,6 +4,24 @@ TO BE USED WITH YGGDRASIL (TO CREATE A WRAPPER OF CSB IN JULIA)
 https://github.com/JuliaPackaging/Yggdrasil
 
 ========================================================================
+    DEVELOPMENT : 
+========================================================================
+
+To test the package locally on `macOS`, issue
+
+```
+julia build_tarballs.jl --debug --deploy=local --verbose x86_64-apple-darwin 
+```
+
+Then, you can add the generated JLL file into the
+`CompressedSparseBlocks` project
+
+```
+] activate CompressedSparseBlocks
+] dev ~/.julia/dev/CSB_jll
+```
+
+========================================================================
     APPLICATION : CSB Overview
 ========================================================================
 

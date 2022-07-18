@@ -3,11 +3,11 @@
  using BinaryBuilder, Pkg
 
  name = "CSB"
- version = v"1.0.0"
+ version = v"1.1.0"
 
  # Collection of sources required to complete build
  sources = [
-     GitSource("https://github.com/fcdimitr/CSB.git", "c53ee56e34f22f8e793ca45349fdcaa36e35f8af")
+     GitSource("https://github.com/fcdimitr/CSB.git", "7a03c8fb85a85759f69a782b07c99d13c0d80d5a")
  ]
 
  # Bash recipe for building across all platforms
